@@ -41,7 +41,7 @@ var maskcloud = function(image) {
 ### 태양광 반사 보정
 해수면에서 발생하는 태양광 반사 보정 식은 다음과 같다.  
 <p align="center">
-![equation](https://bit.ly/3f7irxK)   
+<img src="https://bit.ly/3f7irxK">   
 </p>
 b<sub>i</sub> : 샘플영역 내 NIR 밴드와의 선형 회귀분석 결과로 산출한 기울기     
 R<sub>i</sub> : 구하고자 하는 밴드의 전체 픽셀값     
@@ -131,7 +131,7 @@ var data_mosaic = data.mosaic()
 ### Ratio 알고리즘 적용
 수심은 Blue 밴드와 Green 밴드의 각각에 자연로그를 취한 영상과 실제 수심자료와 비교를 통해 선형 관계식을 아래와 같이 작성할 수 있다.   
 <p align="center">
-![equation](https://bit.ly/37hTYmB)      
+<img src="https://bit.ly/37hTYmB">   
 </p>
 
 ```
