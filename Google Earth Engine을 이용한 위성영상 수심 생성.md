@@ -47,6 +47,49 @@ R<sub>NIR</sub> : NIR 밴드의 전체 픽셀값
 MIN<sub>NIR</sub> : 샘플영역 내 NIR 밴드의 최소값       
 
 각 영상에서 샘플 영역을 선택한 후, 위의 식을 적용하면 태양광 반사가 보정된 각 밴드의 픽셀값을 획득할 수 있다. 샘플 영역은 GEE의 사각형 그리기를 이용하여 설정하였다.
+![](images/gee_sample.png)   
+샘플 영역내 5000개의 픽셀 값을 추출하여 b<sub>i</sub> 산출에 사용하였고, 이 값 중 최소 NIR을 구하였다.
+```
+// Extract sample data
+var sampData = image.sample({
+  region: region,
+  scale: 10,
+  numPixels: 5000,
+  geometries: true
+})
+.map(function(feature) {
+  return feature.set('constant', 1);
+});
+
+// Calculate minimum NIR
+var minNir = ee.Number(sampData.reduceColumns(ee.Reducer.min(), ['nir']).get('min'));
+```
+BLUE 밴드의 b<sub>i</sub>는 아래와 같이 `ee.Reducer.linearRegression`을 이용하며, 변수 ‘slope_blue’가 BLUE 밴드의 b<sub>i</sub>가 된다.
+```
+// Linear regression - Blue
+var linearRegression_blue = ee.Dictionary(sampData.reduceColumns({
+  reducer: ee.Reducer.linearRegression({
+    numX: 2,
+    numY: 1
+  }),
+  selectors: ['constant', 'nir', 'blue']
+}));
+
+// Conver the coefficients array to a list
+var coefList_blue = ee.Array(linearRegression_blue.get('coefficients')).toList();
+
+// Extract the y-intercept and slope
+var yInt_blue = ee.Number(ee.List(coefList_blue.get(0)).get(0)); // y-intercept
+var slope_blue = ee.Number(ee.List(coefList_blue.get(1)).get(0)); // slope
+```
+최종적으로 태양광 반사보정은 다음과 같이 수행되었다.
+```
+// Deglint
+var degBlue = image.expression("b('blue')-slope_blue*(b('nir')-minNir)", {
+  'slope_blue': slope_blue,
+  'minNir': minNir
+});
+```
 
 ### 영상 불러오기
 ### 육상 마스킹
