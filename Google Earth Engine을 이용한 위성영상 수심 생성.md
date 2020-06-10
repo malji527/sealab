@@ -180,7 +180,7 @@ var depth = ratio.expression(
 // Display
 Map.addLayer(depth, {min:0, max:50}, 'Depth');
 ```
-![](images/gee_depth.png)  
+![](images/gee_depth.png)
 
 ### 내보내기
 생산된 수심은 Tiff  포맷으로 저장할 수 있다.
