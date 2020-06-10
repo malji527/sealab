@@ -133,6 +133,7 @@ var data_mosaic = data.mosaic()
 <p align="center">
 ![equation](https://bit.ly/37hTYmB)      
 </p>
+
 ```
 // Calculate ratio
 var ratio = data_mosaic.expression(
