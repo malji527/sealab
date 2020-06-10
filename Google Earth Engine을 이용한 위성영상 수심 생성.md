@@ -15,11 +15,24 @@ Google Earth Engine을 이용한 위성영상 수심 생산
 
 ## Methods
 ### 영상선정 조건
+제주도 인근 해역을 포함한 영상을 불러오기 위해 126E, 33N ~ 127E, 33.7N의 영역을 지정하였다. 이 영역은 코드에서 ‘site’라는 변수명으로 사용된다. 
+```
+var site = ee.Geometry.Polygon([126, 33.7, 126, 33, 127, 33, 127, 33.7], null, false);
+```
+영상은 2019년 3월 24일 영상을 사용할 것이고, Sentinel-2가 갖고있는 밴드 중 ‘BLUE’, ‘GREEN’, ‘RED’, ‘NIR’, ‘SCL’ 밴드만 사용할 것이므로 해당 밴드만 조회할 수 있도록 'globOptions’ 변수를 만들어준다. 
+```
+var globOptions = { 
+  startDate: '2019-03-24', 
+  endDate: '2019-03-25',
+  bandSelect: ['blue', 'green', 'red', 'nir', 'SCL'],
+  bands: ['B2', 'B3', 'B4', 'B8', 'SCL']
+};
+```
 ### 구름제거
 ### 태양광 반사 보정
 ### 영상 불러오기
 ### 육상 마스킹
 ### Ratio 알고리즘 적용
-### soqhsorl
+### 내보내기
 
 ## Code
