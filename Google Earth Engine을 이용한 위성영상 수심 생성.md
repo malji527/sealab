@@ -40,7 +40,7 @@ var maskcloud = function(image) {
 ```    
 ### 태양광 반사 보정
 해수면에서 발생하는 태양광 반사 보정 식은 다음과 같다.  
-![equation](https://bit.ly/2Yk67Dx)
+![equation](https://bit.ly/3f7irxK)   
 b<sub>i</sub> : 샘플영역 내 NIR 밴드와의 선형 회귀분석 결과로 산출한 기울기     
 R<sub>i</sub> : 구하고자 하는 밴드의 전체 픽셀값     
 R<sub>NIR</sub> : NIR 밴드의 전체 픽셀값     
@@ -190,3 +190,4 @@ Export.image.toDrive({
 ![](images/gee_tiff.png)  
 
 ## Code
+제주지역의 수심을 생산하는 GEE 전체 코드 : <https://bit.ly/3f7irxK>
