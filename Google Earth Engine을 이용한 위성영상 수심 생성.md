@@ -27,9 +27,27 @@ var globOptions = {
   bandSelect: ['blue', 'green', 'red', 'nir', 'SCL'],
   bands: ['B2', 'B3', 'B4', 'B8', 'SCL']
 };
-```
+```    
 ### 구름제거
+구름제거는 SCL 밴드를 이용하였다. 'cloud_low’, ‘cloud_medium’, ‘cloud_high’, ‘shadow’ 픽셀을 모두 제거하였다.
+```
+var cld = require('users/fitoprincipe/geetools:cloud_masks')
+
+var maskcloud = function(image) {
+  var masked = cld.sclMask(['cloud_low', 'cloud_medium', 'cloud_high', 'shadow'])(image)
+  return masked
+};
+```    
 ### 태양광 반사 보정
+해수면에서 발생하는 태양광 반사 보정 식은 다음과 같다.    
+            R<sup>'</sup><sub>i</sub>=R<sub>i</sub>-b<sub>i</sub>(R<sub>NIR</sub>-MIN<sub>NIR</sub>)     
+b<sub>i</sub> : 샘플영역 내 NIR 밴드와의 선형 회귀분석 결과로 산출한 기울기     
+R<sub>i</sub> : 구하고자 하는 밴드의 전체 픽셀값     
+R<sub>NIR</sub> : NIR 밴드의 전체 픽셀값     
+MIN<sub>NIR</sub> : 샘플영역 내 NIR 밴드의 최소값       
+
+각 영상에서 샘플 영역을 선택한 후, 위의 식을 적용하면 태양광 반사가 보정된 각 밴드의 픽셀값을 획득할 수 있다. 샘플 영역은 GEE의 사각형 그리기를 이용하여 설정하였다.
+
 ### 영상 불러오기
 ### 육상 마스킹
 ### Ratio 알고리즘 적용
