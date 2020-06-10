@@ -39,8 +39,8 @@ var maskcloud = function(image) {
 };
 ```    
 ### 태양광 반사 보정
-해수면에서 발생하는 태양광 반사 보정 식은 다음과 같다.    
-            R<sup>'</sup><sub>i</sub>=R<sub>i</sub>-b<sub>i</sub>(R<sub>NIR</sub>-MIN<sub>NIR</sub>)     
+해수면에서 발생하는 태양광 반사 보정 식은 다음과 같다.  
+![equation](https://bit.ly/2Yk67Dx)
 b<sub>i</sub> : 샘플영역 내 NIR 밴드와의 선형 회귀분석 결과로 산출한 기울기     
 R<sub>i</sub> : 구하고자 하는 밴드의 전체 픽셀값     
 R<sub>NIR</sub> : NIR 밴드의 전체 픽셀값     
