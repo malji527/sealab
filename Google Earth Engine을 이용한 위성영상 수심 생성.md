@@ -92,8 +92,101 @@ var degBlue = image.expression("b('blue')-slope_blue*(b('nir')-minNir)", {
 ```
 
 ### 영상 불러오기
+위의 영상선정 조건, 구름제거, 태양광 반사 보정이 수행된 영상을 불러온다. 영상은 Sentinel-2의 Level2 자료를 이용하였으며, 구름량이 10% 미만인 영상만을 조회하였다.
+```
+var data = ee.ImageCollection("COPERNICUS/S2_SR")
+      .filterDate(globOptions.startDate, globOptions.endDate)
+      .select(globOptions.bands, globOptions.bandSelect)
+      .filterBounds(site)
+      .map(maskcloud)
+      .filterMetadata('CLOUDY_PIXEL_PERCENTAGE', 'less_than', 10)
+      .map(applyDeglint);
+
+// Display
+Map.addLayer(data, {bands:['red', 'green', 'blue'], min:0, max:2000}, 'RGB')
+```
+
 ### 육상 마스킹
+육지부 마스킹은 해당영역의 영상을 병합한 후 NDWI>0인 부분을 육상으로 가정하여 제거하였다.
+NDWI(Normalized difference water index)는 수분지수 중 하나로 Green 밴드와 NIR 밴드를 이용하여 산출한다.
+```
+// Calculate NDWI
+var applyNDWI = function(image) {
+  // apply NDWI to an image
+  var ndwi = image.normalizedDifference(['green','nir']);
+  return ndwi.select([0], ['ndwi']);
+};
+
+// Land Masking
+var ndwi = data.map(applyNDWI);
+var mosaic_ndwi = ndwi.mosaic();
+var land_mask = mosaic_ndwi.gt(0)
+
+var data_mosaic = data.mosaic()
+                  .updateMask(land_mask);
+```
+
 ### Ratio 알고리즘 적용
+수심은 Blue 밴드와 Green 밴드의 각각에 자연로그를 취한 영상과 실제 수심자료와 비교를 통해 선형 관계식을 아래와 같이 작성할 수 있다.   
+![equation](http://www.sciweavers.org/tex2img.php?eq=z%3Dm_%7B1%7D%5Cfrac%7Bln%28%5Ctextrm%7BBlue%20band%7D%29%7D%7Bln%28%5Ctextrm%7BGreen%20band%7D%29%7D-m_%7B0%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0)      
+```
+// Calculate ratio
+var ratio = data_mosaic.expression(
+            'blue / green'
+            , {
+              'blue': data_mosaic.select('blue').log(),
+              'green': data_mosaic.select('green').log()})
+            .updateMask(land_mask);
+ratio = ratio.select('blue').rename('ratio');
+
+// Extract ratio
+var sampData = ratio.select('ratio').sampleRegions({
+  collection: depth_Jeju,
+  scale: 10,
+  geometries: true
+}).map(function(feature) {
+  return feature.set('constant', 1);
+});
+
+// Linear Regression
+var linearRegression = ee.Dictionary(sampData.reduceColumns({
+  reducer: ee.Reducer.linearRegression({
+    numX: 2,
+    numY: 1
+  }),
+  selectors: ['constant', 'ratio', 'Depth']
+}));  
+
+// Conver the coefficients array to a list
+var coefList = ee.Array(linearRegression.get('coefficients')).toList();
+
+// Extract the y-intercept and slope
+var m0 = ee.Number(ee.List(coefList.get(0)).get(0)); // y-intercept
+var m1 = ee.Number(ee.List(coefList.get(1)).get(0)); // slope
+
+// Ratio to Depth
+var depth = ratio.expression(
+            "m1 * b('ratio') + m0"
+            , {
+              'm0': m0,
+              'm1': m1 
+});
+
+// Display
+Map.addLayer(depth, {min:0, max:50}, 'Depth');
+```
+![](images/gee_depth.png)  
+
 ### 내보내기
+생산된 수심은 Tiff  포맷으로 저장할 수 있다.
+```
+// Export TIFF
+Export.image.toDrive({
+  image: depth,
+  scale: 10,
+  maxPixels: 1e10
+});
+```     
+![](images/gee_tiff.png)  
 
 ## Code
