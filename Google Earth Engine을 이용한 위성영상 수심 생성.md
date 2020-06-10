@@ -128,7 +128,7 @@ var data_mosaic = data.mosaic()
 
 ### Ratio 알고리즘 적용
 수심은 Blue 밴드와 Green 밴드의 각각에 자연로그를 취한 영상과 실제 수심자료와 비교를 통해 선형 관계식을 아래와 같이 작성할 수 있다.   
-![equation](http://www.sciweavers.org/tex2img.php?eq=z%3Dm_%7B1%7D%5Cfrac%7Bln%28%5Ctextrm%7BBlue%20band%7D%29%7D%7Bln%28%5Ctextrm%7BGreen%20band%7D%29%7D-m_%7B0%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0)      
+![equation](https://bit.ly/37hTYmB)      
 ```
 // Calculate ratio
 var ratio = data_mosaic.expression(
